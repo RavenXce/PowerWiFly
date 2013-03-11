@@ -14,7 +14,7 @@
 #include "SoftwareSerial.h"
 
 #define WIFLY_DEFAULT_BAUD_RATE 9600
-#define WIFLY_DEFAULT_DELAY 1000
+#define WIFLY_DEFAULT_DELAY 500
 
 class WiFly{
 	
@@ -27,6 +27,8 @@ class WiFly{
 		SoftwareSerial uart;
 		bool EnterCommandMode();
 		bool IsInCommandMode();
+		void SetupHTTP();
+		void SendHTTPResponse(char*);		
 
 };
 #endif /* WIFLY_H_ */

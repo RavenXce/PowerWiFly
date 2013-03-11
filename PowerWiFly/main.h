@@ -32,5 +32,6 @@ enum MODE { ADHOC, NETWORKED };
 bool CompareCommand(char*, char*);
 void DecryptBuffer(char*);
 void TrimBuffer(char*, int);
+void DoSlowLoop();
 
 #endif /* MAIN_H_ */

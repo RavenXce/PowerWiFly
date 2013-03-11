@@ -17,6 +17,7 @@ int main(void)
 	DDRD = 0b11111000;
 	char buffer[500];
 	MODE mode = ADHOC;
+	int loopcount = 0;
 	state[0] = state[1] = state[2] = state[3] = sync = false;
 	
 	Serial.begin(WIFLY_DEFAULT_BAUD_RATE);
@@ -27,13 +28,16 @@ int main(void)
 	
 	Serial.println("Setting up adhoc mode");
 	wifly.SetupAdHoc();
+	// wifly.SetupHTTP();
 	
 	while(1)
 	{
 		// sleep
 		delay(WIFLY_DEFAULT_DELAY);
 		
-		// every x secs wake and read buffer		
+		if(mode == NETWORKED && loopcount % 10) DoSlowLoop(); // ping internet server for commands.
+		
+		// FAST LOOP => read direct buffer
 		wifly.GetResponse(buffer);
 		
 		if (mode == ADHOC)
@@ -116,6 +120,11 @@ void TrimBuffer( char* buffer, int count)
 }
 
 void AddDeviceToAuthTable()
+{
+	return;
+}
+
+void DoSlowLoop()
 {
 	return;
 }
