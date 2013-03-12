@@ -15,6 +15,7 @@
 
 #define WIFLY_DEFAULT_BAUD_RATE 9600
 #define WIFLY_DEFAULT_DELAY 500
+#define RESPONSE_BUFFER_SIZE 500
 
 class WiFly{
 	
@@ -27,6 +28,8 @@ class WiFly{
 		SoftwareSerial uart;
 		bool EnterCommandMode();
 		bool IsInCommandMode();
+		bool WaitForResponse(char*, int);
+		bool StringsMatch(char*, char*);
 		void SetupHTTP();
 		void SendHTTPResponse(char*);		
 

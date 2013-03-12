@@ -14,59 +14,124 @@ WiFly::WiFly(int rxPin, int txPin) : uart(rxPin, txPin)
 	uart.begin(WIFLY_DEFAULT_BAUD_RATE);
 	uart.listen();
 	uart.flush();
-	while(!EnterCommandMode())
-	{
-		Serial.println("failed to enter cmd mode..");
-	}
 }
 
 bool WiFly::EnterCommandMode()
 {				
 	if (IsInCommandMode()) return true;
+	
 	// Enter command mode
-	Serial.println("sending cmd symbol..");
-	
-	uart.print("$$$");
-	
+	Serial.println("sending cmd symbol..");	
+	uart.flush();
+	uart.println("$$$");	
 	delay(WIFLY_DEFAULT_DELAY);
-			
+	
 	// Check for response
 	GetResponse(buffer);
 	return (buffer == "CMD") ? true : false;
 }
 
 bool WiFly::IsInCommandMode()
-{
+{	
 	// Send command to test for command mode
+	Serial.println("checking if already in cmd mode..");
+	uart.flush();
 	uart.println("get mac");
+	delay(WIFLY_DEFAULT_DELAY);
 	
 	// Check for response
-	GetResponse(buffer);	
-	return (buffer == "MACADDRESS") ? true : false;
+	//WaitForResponse("a",50000);
+	GetResponse(buffer);
+	return (buffer == "00:06:66:80ù14:1") ? true : false;
 }
 
 void WiFly::GetResponse( char * buffer )
 {
 	if (uart.available())
 	{
+		char ch;
 		int i=0;
 		while (uart.available()){
-			buffer[i] = (char)uart.read();
+			ch = uart.read();
+			Serial.print(ch);
+			//buffer[i] = ch;
 			if (i < 500)
 				i++;
 			else
 				Serial.println("Buffer Overflow!");
 		}
 		buffer[i] = '\0';
+		
+		Serial.println(buffer);
 	}
 	
-	Serial.println(buffer);
+	else
+	{
+		Serial.println("no response.");
+	}
 	
 	return;
 }
 
+bool WiFly::WaitForResponse(char* compareBuffer, int timeout){
+	
+	//Variables
+	char* responseBuffer;
+	boolean isReadComplete = false;
+	boolean isCompareSuccess = false;
+	
+	int  bufferPosition = 0;
+
+	//Reset the buffer
+	responseBuffer = (char*) malloc(RESPONSE_BUFFER_SIZE);
+	memset (responseBuffer, '\0', RESPONSE_BUFFER_SIZE - 1);
+
+	//Fill the buffer
+	unsigned long startTime = millis();
+	char chResponse = 0;
+	
+	while(!isReadComplete)
+	{		
+		//Start getting values		
+		if(uart.available()){
+			chResponse = uart.read();			
+			if(bufferPosition < RESPONSE_BUFFER_SIZE - 1){
+				responseBuffer[bufferPosition]=chResponse;
+				bufferPosition++;
+			}
+			else{
+				Serial.println("Buffer overflow!");
+				bufferPosition = 0;
+			}
+		}
+
+		//Check for existence of the comparison string, or if timeout stop
+		if(StringsMatch(responseBuffer,compareBuffer))
+		{
+			isCompareSuccess = true;
+			isReadComplete = true;
+		}
+		else if((millis()-startTime)>timeout)
+		{
+			isCompareSuccess = false;
+			isReadComplete = true;
+		}
+	}
+	
+	Serial.println(responseBuffer);
+	uart.flush();
+	
+	return isCompareSuccess;
+}
+
 int WiFly::SetupAdHoc()
 {
+	// Enter command mode	
+	while(!EnterCommandMode())
+	{
+		Serial.println("failed to enter cmd mode..");
+	}
+	
 	// Setup adhoc network
 	uart.println("set ip address 169.254.1.1");
 	uart.println("set ip netmask 255.255.0.0");
@@ -166,4 +231,12 @@ void WiFly::SendHTTPResponse(char* value){
 	Serial.println("test success!");
 	
 	uart.println("exit");
+}
+
+bool WiFly::StringsMatch(char* a,char* b){
+	char * pch = NULL;
+	pch = strstr (a,b);
+	
+	if(pch == NULL) return false;
+	else return true;
 }
