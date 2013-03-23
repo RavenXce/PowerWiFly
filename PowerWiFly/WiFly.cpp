@@ -7,7 +7,7 @@
 
 #include "WiFly.h"
 
-char buffer[500];
+char buffer[RESPONSE_BUFFER_SIZE];
 
 WiFly::WiFly(int rxPin, int txPin) : uart(rxPin, txPin)
 {
@@ -23,7 +23,7 @@ bool WiFly::EnterCommandMode()
 	// Enter command mode
 	Serial.println("sending cmd symbol..");	
 	uart.flush();
-	uart.println("$$$");	
+	uart.print("$$$");	
 	delay(WIFLY_DEFAULT_DELAY);
 	
 	// Check for response
@@ -42,20 +42,20 @@ bool WiFly::IsInCommandMode()
 	// Check for response
 	//WaitForResponse("a",50000);
 	GetResponse(buffer);
-	return (buffer == "00:06:66:80ù14:1") ? true : false;
+	return (buffer == "00:06:66:80ù:14:18") ? true : false;
 }
 
 void WiFly::GetResponse( char * buffer )
 {
+	char ch;
+	int i=0;
+	
 	if (uart.available())
 	{
-		char ch;
-		int i=0;
 		while (uart.available()){
 			ch = uart.read();
-			Serial.print(ch);
-			//buffer[i] = ch;
-			if (i < 500)
+			buffer[i] = ch;
+			if (i < RESPONSE_BUFFER_SIZE)
 				i++;
 			else
 				Serial.println("Buffer Overflow!");

@@ -14,7 +14,7 @@
 #include "SoftwareSerial.h"
 
 #define WIFLY_DEFAULT_BAUD_RATE 9600
-#define WIFLY_DEFAULT_DELAY 500
+#define WIFLY_DEFAULT_DELAY 5000
 #define RESPONSE_BUFFER_SIZE 500
 
 class WiFly{
