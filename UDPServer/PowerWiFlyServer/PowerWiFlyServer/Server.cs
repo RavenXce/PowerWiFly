@@ -18,8 +18,18 @@ namespace PowerWiFlyServer
         {
             data = new byte[1024];
             ipep = new IPEndPoint(IPAddress.Any, port);
-            newsock = new UdpClient(ipep);
             sender = new IPEndPoint(IPAddress.Any, 0);
+        }
+
+        public int StartServer()
+        {
+            newsock = new UdpClient(ipep);
+            ListeAndRespond();
+        }
+
+        public void StopServer()
+        {
+            newsock.Close();
         }
 
         public int ListeAndRespond(){
@@ -32,7 +42,7 @@ namespace PowerWiFlyServer
             data = Encoding.ASCII.GetBytes(welcome);
             newsock.Send(data, data.Length, sender);
             return 0;
-        }
+        }        
 
         /*
         private string color;

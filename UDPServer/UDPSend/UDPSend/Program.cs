@@ -13,9 +13,9 @@ namespace UDPSend
         static void Main(string[] args)
         {
             UdpClient udpClient = new UdpClient(5500);
-            udpClient.Connect("raaj.homeip.net", 2005);
-            //udpClient.Connect("192.168.1.10", 2005);
-            Byte[] sendBytes = Encoding.ASCII.GetBytes("Is anybody there?");
+            //udpClient.Connect("raaj.homeip.net", 2005);
+            udpClient.Connect("192.168.1.10", 2005);
+            Byte[] sendBytes = Encoding.ASCII.GetBytes("ass?");
             udpClient.Send(sendBytes, sendBytes.Length);
 
             
